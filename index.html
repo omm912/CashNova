@@ -1,0 +1,117 @@
+<!-- index.html --><!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Money Earning App</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+</head>
+<body>
+  <div id="auth">
+    <h2>Login or Signup</h2>
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="login()">Login</button>
+    <button onclick="signup()">Signup</button>
+  </div>  <div class="container" id="app" style="display:none">
+    <h1 class="title">💸 Money Master 💸</h1><div class="card glow">
+  <p>Your Wallet</p>
+  <h2 id="wallet">₹0</h2>
+  <p>Tasks Completed: <span id="tasks">0</span></p>
+</div>
+
+<div class="task-card glow">
+  <p>🧠 Complete Task #1</p>
+  <button onclick="completeTask()">Complete & Earn ₹10</button>
+</div>
+
+<div class="task-card glow">
+  <button onclick="withdraw()">Withdraw ₹100</button>
+</div>
+
+<div class="bottom-nav">
+  <button class="nav-btn">🏠 Home</button>
+  <button class="nav-btn">📋 Tasks</button>
+  <button class="nav-btn">👤 Profile</button>
+</div>
+
+  </div>  <script>
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_AUTH_DOMAIN",
+      projectId: "YOUR_PROJECT_ID"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        document.getElementById("auth").style.display = "none";
+        document.getElementById("app").style.display = "block";
+        loadWallet();
+      } else {
+        document.getElementById("auth").style.display = "block";
+        document.getElementById("app").style.display = "none";
+      }
+    });
+
+    function login() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      auth.signInWithEmailAndPassword(email, password).catch(e => alert(e.message));
+    }
+
+    function signup() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      auth.createUserWithEmailAndPassword(email, password).catch(e => alert(e.message));
+    }
+
+    async function loadWallet() {
+      const uid = auth.currentUser.uid;
+      const doc = await db.collection("users").doc(uid).get();
+      if (!doc.exists) {
+        await db.collection("users").doc(uid).set({ wallet: 0, tasksCompleted: 0 });
+        return loadWallet();
+      }
+      const data = doc.data();
+      document.getElementById("wallet").innerText = `₹${data.wallet}`;
+      document.getElementById("tasks").innerText = data.tasksCompleted;
+    }
+
+    async function completeTask() {
+      const uid = auth.currentUser.uid;
+      const ref = db.collection("users").doc(uid);
+      await db.runTransaction(async (t) => {
+        const doc = await t.get(ref);
+        const data = doc.data();
+        const added = 10;
+        const newTasks = (data.tasksCompleted || 0) + 1;
+        const reward = newTasks % 5 === 0 ? 50 : 0;
+        t.update(ref, {
+          wallet: (data.wallet || 0) + added + reward,
+          tasksCompleted: newTasks
+        });
+      });
+      loadWallet();
+    }
+
+    async function withdraw(amount = 100) {
+      const upiId = prompt("Enter your UPI ID");
+      if (!upiId) return alert("UPI ID needed");
+      const uid = auth.currentUser.uid;
+      const userRef = db.collection("users").doc(uid);
+      const doc = await userRef.get();
+      const data = doc.data();
+      if (data.wallet < amount) return alert("Not enough balance");
+      const link = `upi://pay?pa=${encodeURIComponent(upiId)}&am=${amount}&cu=INR&pn=MoneyMaster`;
+      window.location.href = link;
+      await userRef.update({ wallet: data.wallet - amount });
+      loadWallet();
+    }
+  </script></body>
+</html>
