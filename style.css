@@ -1,0 +1,89 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Orbitron', 'Roboto', sans-serif;
+}
+
+body {
+  background: linear-gradient(135deg, #000000, #111111);
+  color: #fff;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.container {
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.title {
+  font-size: 2.5rem;
+  color: #00ffea;
+  text-shadow: 0 0 10px #00ffea, 0 0 20px #00ffea;
+  margin-bottom: 20px;
+}
+
+.card, .task-card {
+  background: #1a1a1a;
+  padding: 20px;
+  margin: 15px 0;
+  border-radius: 15px;
+  box-shadow: 0 0 15px rgba(0,255,234,0.3);
+}
+
+.card h2 {
+  font-size: 2.2rem;
+  margin-top: 10px;
+  color: #00ffea;
+  text-shadow: 0 0 5px #00ffea;
+}
+
+.task-card button {
+  margin-top: 10px;
+  background: linear-gradient(45deg, #00ffea, #00c3ff);
+  border: none;
+  padding: 10px 20px;
+  color: #000;
+  font-weight: bold;
+  font-size: 1rem;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 0 0 10px #00ffea;
+  transition: transform 0.2s ease;
+}
+
+.task-card button:hover {
+  transform: scale(1.05);
+}
+
+.bottom-nav {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.nav-btn {
+  flex: 1;
+  margin: 0 5px;
+  background: #222;
+  color: #00ffea;
+  border: 2px solid #00ffea;
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 1rem;
+  transition: background 0.3s;
+}
+
+.nav-btn:hover {
+  background: #00ffea;
+  color: #000;
+}
+
+.glow {
+  border: 2px solid #00ffea;
+  box-shadow: 0 0 15px #00ffea;
+}
